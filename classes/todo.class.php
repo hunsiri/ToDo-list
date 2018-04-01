@@ -8,9 +8,9 @@ class ToDo {
 
 	public function __construct($dataName = false) {
 		if ($dataName) {
-			$this->_dataName = $dataName;
+			$this->_dataName = 'saves/' . $dataName;
 		} else {
-			$this->_dataName = "data.txt";
+			$this->_dataName = "saves/data.txt";
 		}
 	}
 
@@ -31,6 +31,7 @@ class ToDo {
 		fwrite ($handle, $this->_dataArrayJson);
 		fclose ($handle);
 		self::getToDoArray();
+		header('Location: http://' . htmlspecialchars($_SERVER["HTTP_HOST"]));
 	}
 
 	public function setToDo($newToDo) {
@@ -38,7 +39,6 @@ class ToDo {
 			self::getToDoArray();
 			$newToDo = array($newToDo => "true");
 			self::setToDoArray("add", $newToDo);
-			header('Location: https://ips.codes/');
 		}
 	}
 
@@ -48,7 +48,19 @@ class ToDo {
 			$arrayKeys = array_keys($this->_dataArray);
 			unset($this->_dataArray[$arrayKeys[--$idToDo]]);
 			self::setToDoArray("remove");
-			header('Location: https://ips.codes/');
+		}
+	}
+
+	public function changeToDo($idToDo) {
+		if (is_numeric($idToDo)) {
+			self::getToDoArray();
+			$arrayKeys = array_keys($this->_dataArray);
+			if ($this->_dataArray[$arrayKeys[--$idToDo]] == "true") {
+				$this->_dataArray[$arrayKeys[$idToDo]] = "false";
+			} else {
+				$this->_dataArray[$arrayKeys[$idToDo]] = "true";
+			}
+			self::setToDoArray("change");
 		}
 	}
 
@@ -57,14 +69,14 @@ class ToDo {
 		$arrayCount = count($this->_dataArray);
 		$arrayKeys = array_keys($this->_dataArray);
 		for ($i=0; $i < $arrayCount; $i++) { 
-			$del = $i;
+			$newi = $i;
 			echo '<h4>';
 			if ($this->_dataArray[$arrayKeys[$i]] == "false") {
-				echo '<tr><th><s>' . $arrayKeys[$i] . '</s></th> <th><a href="?succes=' . $i . '">[X]</a></th>';
+				echo '<tr><th><s>' . $arrayKeys[$i] . '</s></th> <th><a href="?change=' . ++$newi . '">[X]</a></th>';
 			} else {
-				echo '<th>' . $arrayKeys[$i] . '</th> <th><a href="?succes=' . $i . '">[✓]</a></th>';
+				echo '<th>' . $arrayKeys[$i] . '</th> <th><a href="?change=' . ++$newi . '">[✓]</a></th>';
 			}
-			echo ' <th><a href="?delet=' . ++$del . '">[Löschen]</a></h4></th></tr>';
+			echo ' <th><a href="?delet=' . $newi . '">[Löschen]</a></h4></th></tr>';
 		}
 	}
 }
