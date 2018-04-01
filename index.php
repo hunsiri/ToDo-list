@@ -1,6 +1,4 @@
 <?php
-	//ini_set('display_errors', 1);
-	//error_reporting(E_ALL);
 	$newData = htmlspecialchars($_POST["new"]);
 	$succesData = htmlspecialchars($_GET["succes"]);
 	$deletData = htmlspecialchars($_GET["delet"]);

@@ -3,46 +3,57 @@
 class ToDo {
 	
 	private $_dataArray,
+			$_dataArrayJson,
 			$_dataName;
 
-	//constructor muss in andere function verschoben werden das die datei erst nach enderung geladen wird.
 	public function __construct($dataName = false) {
-		$this->_dataName = $dataName;
-		$handel = fopen($this->_dataName, "r");
-		$this->_dataArray = fread($handel, filesize ($dataName));
-		$this->_dataArray = json_decode($this->_dataArray, true);
-		fclose($handel);
+		if ($dataName) {
+			$this->_dataName = $dataName;
+		} else {
+			$this->_dataName = "data.txt";
+		}
 	}
 
 	private function getToDoArray() {
+		$handel = fopen($this->_dataName, "r");
+		$this->_dataArrayJson = fread($handel, filesize ($this->_dataName));
+		$this->_dataArray = json_decode($this->_dataArrayJson, true);
+		fclose($handel);
+	}
 
+	private function setToDoArray($create, $editToDo = "") {
+		if($create == "add") {
+			$this->_dataArrayJson = json_encode($this->_dataArray + $editToDo);
+		} else {
+			$this->_dataArrayJson = json_encode($this->_dataArray);
+		}
+		$handle = fopen ($this->_dataName, "w");
+		fwrite ($handle, $this->_dataArrayJson);
+		fclose ($handle);
+		self::getToDoArray();
 	}
 
 	public function setToDo($newToDo) {
 		if ($newToDo != "") {
+			self::getToDoArray();
 			$newToDo = array($newToDo => "true");
-			$arrayJson = json_encode($this->_dataArray + $newToDo);
-			$handle = fopen ($this->_dataName, "w");
-			fwrite ($handle, $arrayJson);
-			fclose ($handle);
+			self::setToDoArray("add", $newToDo);
+			header('Location: https://ips.codes/');
 		}
 	}
 
 	public function delToDo($idToDo) {
 		if (is_numeric($idToDo)) {
+			self::getToDoArray();
 			$arrayKeys = array_keys($this->_dataArray);
-			$arrayData = $this->_dataArray;
-			print_r($arrayKeys[--$idToDo]);
-			unset($arrayData[$arrayKeys[$idToDo]]);
-			$arrayJson = json_encode($arrayData);
-			$handle = fopen ($this->_dataName, "w");
-			fwrite ($handle, $arrayJson);
-			fclose ($handle);
-			header('Location: https://todo.ips.codes/');
+			unset($this->_dataArray[$arrayKeys[--$idToDo]]);
+			self::setToDoArray("remove");
+			header('Location: https://ips.codes/');
 		}
 	}
 
 	public function getToDo() {
+		self::getToDoArray();
 		$arrayCount = count($this->_dataArray);
 		$arrayKeys = array_keys($this->_dataArray);
 		for ($i=0; $i < $arrayCount; $i++) { 
