@@ -76,7 +76,7 @@ class ToDo {
 			} else {
 				echo '<th>' . $arrayKeys[$i] . '</th> <th><a href="?change=' . ++$newi . '">[✓]</a></th>';
 			}
-			echo ' <th><a href="?delet=' . $newi . '">[Löschen]</a></h4></th></tr>';
+			echo ' <th><a href="?delet=' . $newi . '">[Delete]</a></h4></th></tr>';
 		}
 	}
 }
